@@ -19,7 +19,7 @@ const gatePost = async (req:Request,res:Response)=>{
 }
 const deletedPost = async (req:Request,res:Response)=>{
     try {
-        console.log("get")
+        
         const id = req.params.id as string;
         console.log(id)
         const data = await postService.deletedPost(id);
