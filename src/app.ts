@@ -1,10 +1,10 @@
 import express, { Application } from "express";
+import { postRouter } from "./modules/post/post.router";
 
 
 const app:Application = express();
+app.use(express.json())
 
-app.get('/', (req,res)=>{
-    res.send("Hi I am Prisma Server, And , Welcome all of you, I hope We are well , and, i am fine , Today I will talk fron of you about political promblem in bangladesh")
-})
+app.use('/post', postRouter)
 
 export default app;
