@@ -46,28 +46,43 @@ export const auth = betterAuth({
         requireEmailVerification: true
     },
     emailVerification: {
+        sendOnSignUp: true,
+        autoSignInAfterVerification: true,
+
         sendVerificationEmail: async ({ user, url, token }, request) => {
             const verificationUrl = `${process.env.APP_URL}/email-verify?token=${token}`
-            const info = await transporter.sendMail({
-                from: 'Prisma blogs " <maddison53@ethereal.email>',
-                to: user.email,
-                subject: "Verify your email address",
- 
-                text: `Hello ${user.name}`, // Plain-text version of the message
-                html: `
+            try {
+                const info = await transporter.sendMail({
+                    from: 'Prisma blogs " <maddison53@ethereal.email>',
+                    to: user.email,
+                    subject: "Verify your email address",
+
+                    text: `Hello ${user.name}`,
+                    html: `
                     <p>Hello ${user.name || "there"},</p>
                     <p>Please verify your email address by clicking the link below:</p>
                     <p><a href="${verificationUrl}">Verify Email</a></p>
                     <p>If you didn’t create this account, you can ignore this email.</p>
                     <p>— Prisma Blogs Team</p>
                 `,
-            });
+                });
+            } catch (error) {
+                console.error(error)
 
-            console.log("Message sent:", info.messageId);
+            }
+
 
         },
     },
 
+    socialProviders: {
+        google: {
+            prompt: "select_account consent",
+            accessType:"offline",
+            clientId: process.env.GOOGLE_CLIENT_ID as string,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+        },
+    },
 
 
 });

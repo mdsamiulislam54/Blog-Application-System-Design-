@@ -2,7 +2,11 @@ import { Request, Response } from "express"
 import { postService } from "./post.service"
 const createPost = async (req:Request,res:Response)=>{
     try {
-        const data = await postService.createPost(req.body);
+        const user = req.user ;
+        if(!user){
+            return res.status(401).json({message: "Unauthorized"})
+        }
+        const data = await postService.createPost(req.body, user.id as string);
         res.status(201).json({message:"Post create Successfully", data})
     } catch (error) {
         res.status(404).json({error: "Post create failed"})
