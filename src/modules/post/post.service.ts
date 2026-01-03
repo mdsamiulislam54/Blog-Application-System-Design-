@@ -1,5 +1,5 @@
-import { number } from "better-auth/*";
-import { Post } from "../../../generated/prisma/client"
+
+import { Post, PostStatus } from "../../../generated/prisma/client"
 import { prisma } from "../../../lib/prisma"
 import { PostWhereInput } from "../../../generated/prisma/models";
 
@@ -19,9 +19,11 @@ const createPost = async (data: Omit<Post, "post_id" | "createdAt" | "updatedAt"
 const getAllPost = async (payload: {
     searchtext?: string | undefined;
     tagsArray?: string[];
+    statusText: PostStatus | undefined;
 }) => {
 
-    const { searchtext, tagsArray } = payload;
+    const { searchtext, tagsArray, statusText } = payload;
+    console.log("service", statusText)
     const wherConditions: PostWhereInput[] = []
 
     if (searchtext) {
@@ -63,9 +65,16 @@ const getAllPost = async (payload: {
         )
     };
 
+    if (statusText === undefined) return [];
+    if (statusText && statusText !== undefined) {
+        wherConditions.push({
+            status: statusText
+        })
+    }
+
 
     const result = await prisma.post.findMany({
-        where:{
+        where: {
             AND: wherConditions
         }
     });

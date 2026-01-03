@@ -1,5 +1,8 @@
 import { Request, Response } from "express"
 import { postService } from "./post.service"
+import { PostStatus } from "../../../generated/prisma/client"
+
+
 const createPost = async (req: Request, res: Response) => {
     try {
         const user = req.user;
@@ -14,12 +17,18 @@ const createPost = async (req: Request, res: Response) => {
 }
 const gatePost = async (req: Request, res: Response) => {
     try {
-        const { search, tags } = req.query;
-        const searchtext = typeof search === 'string'? search: undefined;
-        const tagsArray = typeof tags === 'string'? (tags as string).split(","): [];
-        
-       
-        const data = await postService.getAllPost({ searchtext, tagsArray });
+        const { search, tags, statusParam } = req.query;
+        const searchtext = typeof search === 'string' ? search : undefined;
+        const tagsArray = typeof tags === 'string' ? (tags as string).split(",") : [];
+
+        const statusText =
+            typeof statusParam === "string" && Object.values(PostStatus).includes(statusParam as PostStatus)
+                ? statusParam as PostStatus
+                : undefined;
+
+        console.log(statusText);
+
+        const data = await postService.getAllPost({ searchtext, tagsArray, statusText });
         res.status(201).json({ message: " Get Post Successfully", data })
     } catch (error) {
         res.status(404).json({ error: "Get Post  failed" })
