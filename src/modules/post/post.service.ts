@@ -20,10 +20,10 @@ const getAllPost = async (payload: {
     searchtext?: string | undefined;
     tagsArray?: string[];
     statusText: PostStatus | undefined;
+    isFeature: boolean | undefined;
 }) => {
 
-    const { searchtext, tagsArray, statusText } = payload;
-    console.log("service", statusText)
+    const { searchtext, tagsArray, statusText,isFeature } = payload;
     const wherConditions: PostWhereInput[] = []
 
     if (searchtext) {
@@ -65,13 +65,18 @@ const getAllPost = async (payload: {
         )
     };
 
-    if (statusText === undefined) return [];
+    // if (statusText === undefined) return [];
     if (statusText && statusText !== undefined) {
         wherConditions.push({
             status: statusText
         })
     }
 
+    if(typeof isFeature === 'boolean'){
+        wherConditions.push({
+            isFeatured: isFeature
+        })
+    }
 
     const result = await prisma.post.findMany({
         where: {

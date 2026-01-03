@@ -17,18 +17,21 @@ const createPost = async (req: Request, res: Response) => {
 }
 const gatePost = async (req: Request, res: Response) => {
     try {
-        const { search, tags, statusParam } = req.query;
+        const { search, tags, statusParam, isFeatured } = req.query;
         const searchtext = typeof search === 'string' ? search : undefined;
         const tagsArray = typeof tags === 'string' ? (tags as string).split(",") : [];
 
-        const statusText =
-            typeof statusParam === "string" && Object.values(PostStatus).includes(statusParam as PostStatus)
-                ? statusParam as PostStatus
-                : undefined;
+        const statusText = typeof statusParam === "string" && Object.values(PostStatus).includes(statusParam as PostStatus) ? statusParam as PostStatus : undefined;
 
-        console.log(statusText);
+        const isFeature = isFeatured
+            ? isFeatured === 'true'
+                ? true
+                : isFeatured === 'false'
+                    ? false
+                    : undefined
+            : undefined;
 
-        const data = await postService.getAllPost({ searchtext, tagsArray, statusText });
+        const data = await postService.getAllPost({ searchtext, tagsArray, statusText, isFeature });
         res.status(201).json({ message: " Get Post Successfully", data })
     } catch (error) {
         res.status(404).json({ error: "Get Post  failed" })
