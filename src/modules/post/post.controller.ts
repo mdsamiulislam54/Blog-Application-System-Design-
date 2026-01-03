@@ -14,8 +14,8 @@ const createPost = async (req:Request,res:Response)=>{
 }
 const gatePost = async (req:Request,res:Response)=>{
     try {
-        console.log("get")
-        const data = await postService.getAllPost();
+        const {search} = req.query;
+        const data = await postService.getAllPost({search});
         res.status(201).json({message:" Get Post Successfully", data})
     } catch (error) {
         res.status(404).json({error: "Get Post  failed"})
