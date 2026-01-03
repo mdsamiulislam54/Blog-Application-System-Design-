@@ -1,7 +1,8 @@
+import { number } from "better-auth/*";
 import { Post } from "../../../generated/prisma/client"
 import { prisma } from "../../../lib/prisma"
 
-const createPost = async (data: Omit<Post, "post_id" |"createdAt" | "updatedAt"| "author_id" >,  user_id: string)=>{
+const createPost = async (data: Omit<Post, "post_id" | "createdAt" | "updatedAt" | "author_id">, user_id: string) => {
 
     const result = await prisma.post.create({
         data: {
@@ -14,22 +15,40 @@ const createPost = async (data: Omit<Post, "post_id" |"createdAt" | "updatedAt"|
 
 }
 
-const getAllPost = async (payload: Record<string, unknown>)=>{
-    const {search} = payload;
+const getAllPost = async (payload: Record<string,  unknown>) => {
+    const { search } = payload;
     const result = await prisma.post.findMany({
-        where:{
-            title:{
-                contains : search as string,
-                mode: "insensitive"
-            }
+        where: {
+            OR: [
+                {
+                    title: {
+                        contains: search as string,
+                        mode: "insensitive"
+                    }
+                },
+                {
+                    content: {
+                        contains: search as string,
+                        mode: "insensitive"
+                    }
+                },
+
+                {
+                    tags: {
+                        has: search as string
+                    }
+                },
+
+                {view: Number(search)}
+            ]
         }
     });
 
     return result
 }
-const deletedPost = async (id:string)=>{
+const deletedPost = async (id: string) => {
     const result = await prisma.post.delete({
-        where:{
+        where: {
             post_id: id
         }
     });
