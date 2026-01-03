@@ -1,6 +1,7 @@
 import { number } from "better-auth/*";
 import { Post } from "../../../generated/prisma/client"
 import { prisma } from "../../../lib/prisma"
+import { PostWhereInput } from "../../../generated/prisma/models";
 
 const createPost = async (data: Omit<Post, "post_id" | "createdAt" | "updatedAt" | "author_id">, user_id: string) => {
 
@@ -15,32 +16,57 @@ const createPost = async (data: Omit<Post, "post_id" | "createdAt" | "updatedAt"
 
 }
 
-const getAllPost = async (payload: Record<string,  unknown>) => {
-    const { search } = payload;
+const getAllPost = async (payload: {
+    searchtext?: string | undefined;
+    tagsArray?: string[];
+}) => {
+
+    const { searchtext, tagsArray } = payload;
+    const wherConditions: PostWhereInput[] = []
+
+    if (searchtext) {
+        wherConditions.push(
+            {
+                OR: [
+
+                    {
+                        title: {
+                            contains: searchtext as string,
+                            mode: "insensitive"
+                        }
+                    },
+                    {
+                        content: {
+                            contains: searchtext as string,
+                            mode: "insensitive"
+                        }
+                    },
+
+                    {
+                        tags: {
+                            has: searchtext as string
+                        }
+                    }
+
+                ]
+            },
+        )
+    };
+
+    if (tagsArray && tagsArray.length > 0) {
+        wherConditions.push(
+            {
+                tags: {
+                    hasEvery: tagsArray as string[]
+                }
+            }
+        )
+    };
+
+
     const result = await prisma.post.findMany({
-        where: {
-            OR: [
-                {
-                    title: {
-                        contains: search as string,
-                        mode: "insensitive"
-                    }
-                },
-                {
-                    content: {
-                        contains: search as string,
-                        mode: "insensitive"
-                    }
-                },
-
-                {
-                    tags: {
-                        has: search as string
-                    }
-                },
-
-                {view: Number(search)}
-            ]
+        where:{
+            AND: wherConditions
         }
     });
 
