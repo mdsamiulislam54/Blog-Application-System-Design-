@@ -21,11 +21,15 @@ const getAllPost = async (payload: {
     tagsArray?: string[];
     statusText: PostStatus | undefined;
     isFeature: boolean | undefined;
-    author_Id : string;
+    author_Id: string;
+    skip: number;
+    limit: number;
+    sortBy : string 
+    sorOrderBy : string 
 }) => {
 
-    const { searchtext, tagsArray, statusText,isFeature,author_Id } = payload;
-    console.log("Author_id",author_Id)
+    const { searchtext, tagsArray, statusText, isFeature, author_Id, skip, limit, sortBy, sorOrderBy } = payload;
+    console.log("Author_id", author_Id)
     const wherConditions: PostWhereInput[] = []
 
     if (searchtext) {
@@ -74,21 +78,26 @@ const getAllPost = async (payload: {
         })
     }
 
-    if(typeof isFeature === 'boolean'){
+    if (typeof isFeature === 'boolean') {
         wherConditions.push({
             isFeatured: isFeature
         })
     }
 
-    if(author_Id){
+    if (author_Id) {
         wherConditions.push({
             author_id: author_Id
         })
     }
 
     const result = await prisma.post.findMany({
+        take: limit,
+        skip,
         where: {
             AND: wherConditions
+        },
+        orderBy:{
+            [sortBy]: sorOrderBy
         }
     });
 
@@ -96,6 +105,7 @@ const getAllPost = async (payload: {
 }
 const deletedPost = async (id: string) => {
     const result = await prisma.post.delete({
+
         where: {
             post_id: id
         }
