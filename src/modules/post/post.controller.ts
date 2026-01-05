@@ -32,10 +32,10 @@ const gatePost = async (req: Request, res: Response) => {
             : undefined;
 
     
-            const {skip, limit,sorOrderBy,sortBy} = paginationSortingHelper(req.query);
+            const {skip, limit,sorOrderBy,sortBy,page} = paginationSortingHelper(req.query);
            
 
-        const data = await postService.getAllPost({ searchtext, tagsArray, statusText, isFeature, author_Id, skip, limit, sortBy, sorOrderBy });
+        const data = await postService.getAllPost({ searchtext, tagsArray, statusText, isFeature, author_Id, skip, limit, sortBy, sorOrderBy,page });
         res.status(201).json({ message: " Get Post Successfully", data })
     } catch (error) {
         res.status(404).json({ error: "Get Post  failed" })

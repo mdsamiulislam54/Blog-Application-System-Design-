@@ -22,13 +22,14 @@ const getAllPost = async (payload: {
     statusText: PostStatus | undefined;
     isFeature: boolean | undefined;
     author_Id: string;
+    page: number
     skip: number;
     limit: number;
-    sortBy : string 
-    sorOrderBy : string 
+    sortBy: string
+    sorOrderBy: string
 }) => {
 
-    const { searchtext, tagsArray, statusText, isFeature, author_Id, skip, limit, sortBy, sorOrderBy } = payload;
+    const { searchtext, tagsArray, statusText, isFeature, author_Id, skip, limit, sortBy, sorOrderBy, page } = payload;
     console.log("Author_id", author_Id)
     const wherConditions: PostWhereInput[] = []
 
@@ -96,12 +97,26 @@ const getAllPost = async (payload: {
         where: {
             AND: wherConditions
         },
-        orderBy:{
+        orderBy: {
             [sortBy]: sorOrderBy
         }
     });
 
-    return result
+    const total = await prisma.post.count({
+        where: {
+            AND: wherConditions
+        }
+    })
+
+    return {
+        result,
+        pagination: {
+            total,
+            page,
+            limit,
+            totalpage: Math.floor(total / limit)
+        }
+    }
 }
 const deletedPost = async (id: string) => {
     const result = await prisma.post.delete({
