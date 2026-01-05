@@ -129,11 +129,24 @@ const deletedPost = async (id: string) => {
     return result
 }
 
-const getPostById = async (id: string)=>{
-    const result = await prisma.post.findUnique({
-        where:{post_id: id}
-    });
-    return result;
+const getPostById = async (id: string) => {
+  console.log(id)
+    const result = await prisma.$transaction(async (tx) => {
+       await tx.post.update({
+            where: { post_id: id },
+            data: {
+                view: {
+                    increment: 1
+                }
+            }
+        })
+        const postData = await tx.post.findUnique({
+            where: { post_id: id }
+        });
+
+        return postData;
+    })
+   return result
 }
 
 export const postService = {
