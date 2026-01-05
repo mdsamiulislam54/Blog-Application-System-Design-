@@ -21,9 +21,11 @@ const getAllPost = async (payload: {
     tagsArray?: string[];
     statusText: PostStatus | undefined;
     isFeature: boolean | undefined;
+    author_Id : string;
 }) => {
 
-    const { searchtext, tagsArray, statusText,isFeature } = payload;
+    const { searchtext, tagsArray, statusText,isFeature,author_Id } = payload;
+    console.log("Author_id",author_Id)
     const wherConditions: PostWhereInput[] = []
 
     if (searchtext) {
@@ -75,6 +77,12 @@ const getAllPost = async (payload: {
     if(typeof isFeature === 'boolean'){
         wherConditions.push({
             isFeatured: isFeature
+        })
+    }
+
+    if(author_Id){
+        wherConditions.push({
+            author_id: author_Id
         })
     }
 
