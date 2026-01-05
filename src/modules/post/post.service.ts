@@ -129,9 +129,16 @@ const deletedPost = async (id: string) => {
     return result
 }
 
+const getPostById = async (id: string)=>{
+    const result = await prisma.post.findUnique({
+        where:{post_id: id}
+    });
+    return result;
+}
 
 export const postService = {
     createPost,
     getAllPost,
-    deletedPost
+    deletedPost,
+    getPostById
 }

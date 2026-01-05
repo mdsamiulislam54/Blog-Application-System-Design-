@@ -7,6 +7,7 @@ const router = express.Router();
 router.post('/create', roleVerify(userRole.ADMIN, userRole.USER), postController.createPost) 
 router.get('/', postController.gatePost) 
 router.delete('/:id', postController.deletedPost) 
+router.get('/:id', postController.getPostById) 
 
 
 
