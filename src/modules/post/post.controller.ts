@@ -59,7 +59,7 @@ const getPostById = async (req: Request, res: Response) => {
         if (!id) { throw new Error("Post_id is Required") }
         
         const data = await postService.getPostById(id);
-        console.log(data)
+   
         if (!data) {
             res.status(404).json({ success: false ,message: "This PostId Post is not exists"  })
         }

@@ -1,3 +1,4 @@
+import { CommentStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../../lib/prisma"
 
 const createComment = async (payload: {
@@ -41,7 +42,7 @@ const getCommentById = async (id: string) => {
     })
 }
 const getCommentByAuthorId = async (id: string) => {
-    console.log(id, "authorId")
+
 
     return await prisma.comment.findMany({
         where: {
@@ -66,8 +67,70 @@ const getCommentByAuthorId = async (id: string) => {
         }
     })
 }
+
+const deleteCommentById = async (id: string, authorId: string) => {
+
+    const comment = await prisma.comment.findFirst({
+        where: {
+            comment_id: id,
+            author_id: authorId
+        },
+        select: {
+            comment_id: true
+        }
+    });
+
+    if (!comment) {
+        throw new Error("Comment not found!")
+    }
+
+    return await prisma.comment.delete({
+        where: {
+            comment_id: id,
+            author_id: authorId
+        }
+    })
+
+}
+
+const updateComment = async (
+  id: string,
+  data: { content?: string; status?: CommentStatus },
+  authorId: string
+) => {
+
+  const comment = await prisma.comment.findFirst({
+    where: {
+      comment_id: id,
+      author_id: authorId
+    },
+    select: {
+      comment_id: true
+    }
+  });
+
+  if (!comment) {
+    throw new Error("Comment not found!");
+  }
+
+  const updateData = {
+    ...(data.content !== undefined && { content: data.content }),
+    ...(data.status !== undefined && { status: data.status }),
+  };
+
+  return await prisma.comment.updateMany({
+    where: {
+      comment_id: id,
+      author_id: authorId
+    },
+    data: updateData
+  });
+};
+
 export const commentService = {
     createComment,
     getCommentById,
-    getCommentByAuthorId
+    getCommentByAuthorId,
+    deleteCommentById,
+    updateComment
 }

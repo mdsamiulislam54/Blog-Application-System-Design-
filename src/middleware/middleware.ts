@@ -33,7 +33,7 @@ export function roleVerify(...role: userRole[]) {
             if (!session) {
                 return res.status(401).json({
                     success: false,
-                    message: "Your are not authorized"
+                    message: "Your are not authorized Please Login "
                 })
             }
 

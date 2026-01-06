@@ -97,6 +97,27 @@ const getAllPost = async (payload: {
         where: {
             AND: wherConditions
         },
+        include: {
+            comment: {
+                select: {
+                    comment_id: true,
+                    author_id: true,
+                    content: true,
+                    parent_id: true,
+                    replies: {
+                        select: {
+                            comment_id: true,
+                            author_id: true,
+                            content: true,
+                            parent_id: true
+                        }
+                    }
+                },
+
+
+
+            }
+        },
         orderBy: {
             [sortBy]: sorOrderBy
         }
@@ -166,8 +187,8 @@ const getPostById = async (id: string) => {
                         }
                     }
                 },
-                _count:{
-                    select:{comment:true}
+                _count: {
+                    select: { comment: true }
                 }
             }
         });

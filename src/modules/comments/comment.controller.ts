@@ -13,7 +13,7 @@ const createComment = async (req: Request, res: Response) => {
 }
 const getCommentById = async (req: Request, res: Response) => {
     try {
-       
+
         const commentId = req.params.commentId as string
         const data = await commentService.getCommentById(commentId);
         res.status(201).json({ message: "Comment Get Successfully", data })
@@ -23,7 +23,7 @@ const getCommentById = async (req: Request, res: Response) => {
 }
 const getCommentByAuthorId = async (req: Request, res: Response) => {
     try {
-       
+
         const id = req.params.authorId as string
         const data = await commentService.getCommentByAuthorId(id);
         res.status(201).json({ message: "Comment Get Successfully", data })
@@ -31,10 +31,37 @@ const getCommentByAuthorId = async (req: Request, res: Response) => {
         res.status(404).json({ error: "Coment Get failed" })
     }
 }
+const deleteCommentById = async (req: Request, res: Response) => {
+    try {
+        const user = req.user;
+        const id = req.params.id as string
+
+        const data = await commentService.deleteCommentById(id, user?.id);
+        res.status(201).json({ message: "Comment Delete Successfully", data })
+    } catch (error) {
+        res.status(404).json({ error: "Coment delete failed" })
+    }
+}
+const updateComment = async (req: Request, res: Response) => {
+    try {
+        const id = req.params.id as string;
+        const UpdateData = req.body;
+        const user = req.user;
+        const data = await commentService.updateComment(id, UpdateData, user?.id);
+        res.status(201).json({ message: "Comment Update Successfully", data })
+    } catch (error) {
+        
+        res.status(400).json({
+            error: error instanceof Error ? error.message : "Comment update failed"
+        });
+    }
+}
 
 
 export const commentController = {
     createComment,
     getCommentById,
-    getCommentByAuthorId
+    getCommentByAuthorId,
+    deleteCommentById,
+    updateComment
 }
