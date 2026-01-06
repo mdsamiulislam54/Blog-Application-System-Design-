@@ -4,6 +4,7 @@ import { postRouter } from "./modules/post/post.router";
 import { toNodeHandler } from "better-auth/node";
 import { auth } from "../lib/auth";
 import cors from 'cors'
+import { commentRouter } from "./modules/comments/comment.router";
 dotenv.config();
 const app:Application = express();
 app.use(express.json())
@@ -13,7 +14,8 @@ app.use(cors({
     credentials: true
 }))
 
-app.use('/post', postRouter)
+app.use('/post', postRouter);
+app.use('/comments', commentRouter);
 app.all('/api/auth/*splat', toNodeHandler(auth));
 
 export default app;

@@ -1,5 +1,5 @@
 
-import { Post, PostStatus } from "../../../generated/prisma/client"
+import { CommentStatus, Post, PostStatus } from "../../../generated/prisma/client"
 import { prisma } from "../../../lib/prisma"
 import { PostWhereInput } from "../../../generated/prisma/models";
 
@@ -130,9 +130,9 @@ const deletedPost = async (id: string) => {
 }
 
 const getPostById = async (id: string) => {
-  console.log(id)
+    console.log(id)
     const result = await prisma.$transaction(async (tx) => {
-       await tx.post.update({
+        await tx.post.update({
             where: { post_id: id },
             data: {
                 view: {
@@ -141,12 +141,40 @@ const getPostById = async (id: string) => {
             }
         })
         const postData = await tx.post.findUnique({
-            where: { post_id: id }
+            where: { post_id: id },
+            include: {
+                comment: {
+                    where: {
+                        parent_id: null
+                    },
+                    orderBy: { createdAt: "desc" },
+                    include: {
+                        replies: {
+                            where: {
+                                status: CommentStatus.APPROVED
+                            },
+                            orderBy: { createdAt: "asc" },
+                            include: {
+                                replies: {
+                                    where: {
+                                        status: CommentStatus.APPROVED
+                                    },
+                                    orderBy: { createdAt: "asc" },
+                                },
+
+                            }
+                        }
+                    }
+                },
+                _count:{
+                    select:{comment:true}
+                }
+            }
         });
 
         return postData;
     })
-   return result
+    return result
 }
 
 export const postService = {
