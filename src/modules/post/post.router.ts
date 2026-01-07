@@ -6,11 +6,12 @@ const router = express.Router();
 
 router.post('/create', roleVerify(userRole.ADMIN, userRole.USER), postController.createPost);
 router.get('/my-posts', roleVerify(userRole.ADMIN, userRole.USER), postController.getMyPost)
-router.get('/', postController.getPost)
+
+router.get('/', postController.getPost);
 router.get('/:id', postController.getPostById);
 
 router.delete('/:id', postController.deletedPost);
 
-
+router.patch('/update-own-post/:id', roleVerify(userRole.ADMIN, userRole.USER), postController.updateOwnPost);
 
 export const postRouter: Router = router

@@ -205,9 +205,9 @@ const getPostById = async (id: string) => {
 const getMyPost = async (authorId: string) => {
 
     await prisma.user.findUniqueOrThrow({
-        where:{
+        where: {
             id: authorId,
-            status:"ACTIVE"
+            status: "ACTIVE"
         }
     })
     const result = await prisma.post.findMany({
@@ -231,14 +231,36 @@ const getMyPost = async (authorId: string) => {
         _count: {
             post_id: true
         },
-        where:{
-            author_id:authorId
+        where: {
+            author_id: authorId
         }
     })
 
     return { result, total }
 }
 
+const updateOwnPost = async (id: string, authorid: string, data: Partial<Post>) => {
+    console.log(id, authorid, data);
+
+    const post = await prisma.post.findUniqueOrThrow({
+        where: { post_id: id },
+        select: { post_id: true, author_id: true }
+    });
+
+    if (post.author_id !== authorid) {
+        throw new Error("Your are not create/owner of this post. So Your not update of this post ")
+    }
+
+    return await prisma.post.updateMany({
+        where: {
+            post_id: id
+        },
+        data
+    })
+
+
+
+}
 
 
 export const postService = {
@@ -246,5 +268,6 @@ export const postService = {
     getAllPost,
     deletedPost,
     getPostById,
-    getMyPost
+    getMyPost,
+    updateOwnPost
 }
