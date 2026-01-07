@@ -132,6 +132,10 @@ const moderateComment = async (id: string, data: { status: CommentStatus }) => {
     const comment = await prisma.comment.findUniqueOrThrow({
         where: {
             comment_id: id
+        },
+        select:{
+            comment_id:true,
+            status:true
         }
     });
     

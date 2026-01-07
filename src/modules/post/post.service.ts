@@ -30,7 +30,6 @@ const getAllPost = async (payload: {
 }) => {
 
     const { searchtext, tagsArray, statusText, isFeature, author_Id, skip, limit, sortBy, sorOrderBy, page } = payload;
-    console.log("Author_id", author_Id)
     const wherConditions: PostWhereInput[] = []
 
     if (searchtext) {
@@ -104,14 +103,14 @@ const getAllPost = async (payload: {
                     author_id: true,
                     content: true,
                     parent_id: true,
-                    status:true,
+                    status: true,
                     replies: {
                         select: {
                             comment_id: true,
                             author_id: true,
                             content: true,
                             parent_id: true,
-                            status:true
+                            status: true
                         }
                     }
                 },
@@ -153,56 +152,75 @@ const deletedPost = async (id: string) => {
 }
 
 const getPostById = async (id: string) => {
-    console.log(id)
-    const result = await prisma.$transaction(async (tx) => {
-        await tx.post.update({
-            where: { post_id: id },
-            data: {
-                view: {
-                    increment: 1
-                }
-            }
-        })
-        const postData = await tx.post.findUnique({
-            where: { post_id: id },
-            include: {
-                comment: {
-                    where: {
-                        parent_id: null
-                    },
-                    orderBy: { createdAt: "desc" },
-                    include: {
-                        replies: {
-                            where: {
-                                status: CommentStatus.APPROVED
-                            },
-                            orderBy: { createdAt: "asc" },
-                            include: {
-                                replies: {
-                                    where: {
-                                        status: CommentStatus.APPROVED
-                                    },
-                                    orderBy: { createdAt: "asc" },
-                                },
 
-                            }
+    const postData = await prisma.post.findUnique({
+        where: { post_id: id },
+        include: {
+            comment: {
+                where: {
+                    parent_id: null
+                },
+                orderBy: { createdAt: "desc" },
+                include: {
+                    replies: {
+                        where: {
+                            status: CommentStatus.APPROVED
+                        },
+                        orderBy: { createdAt: "asc" },
+                        include: {
+                            replies: {
+                                where: {
+                                    status: CommentStatus.APPROVED
+                                },
+                                orderBy: { createdAt: "asc" },
+                            },
+
                         }
                     }
-                },
-                _count: {
-                    select: { comment: true }
                 }
+            },
+            _count: {
+                select: { comment: true }
             }
-        });
+        }
+    });
 
-        return postData;
+    if(!postData) return null;
+
+    await prisma.post.update({
+        where: { post_id: id },
+        data: {
+            view: {
+                increment: 1
+            }
+        }
     })
+
+
+    return postData;
+
+
+}
+
+const getMyPost = async (authorId: string) => {
+    console.log(authorId)
+    const result = await prisma.post.findMany({
+        where: {
+            author_id: authorId
+        },
+        include:{comment:true},
+        orderBy: { createdAt: "desc" }
+    })
+
     return result
 }
+
+
 
 export const postService = {
     createPost,
     getAllPost,
     deletedPost,
-    getPostById
+    getPostById,
+    getMyPost
 }

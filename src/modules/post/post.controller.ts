@@ -16,7 +16,7 @@ const createPost = async (req: Request, res: Response) => {
         res.status(404).json({ error: error instanceof Error ? error.message : "Post create failed" })
     }
 }
-const gatePost = async (req: Request, res: Response) => {
+const getPost = async (req: Request, res: Response) => {
     try {
         const { search, tags, statusParam, isFeatured, authorId, } = req.query;
         const searchtext = typeof search === 'string' ? search : undefined;
@@ -57,21 +57,36 @@ const getPostById = async (req: Request, res: Response) => {
 
         const id = req.params.id as string;
         if (!id) { throw new Error("Post_id is Required") }
-        
+
         const data = await postService.getPostById(id);
-   
+
         if (!data) {
-            res.status(404).json({ success: false ,message: "This PostId Post is not exists"  })
+            res.status(404).json({ success: false, message: "This PostId Post is not exists" })
         }
         res.status(200).json({ message: " Post Get Successfully", data })
     } catch (error) {
         res.status(404).json({ error: error instanceof Error ? error.message : "Post not found" })
     }
 }
+const getMyPost = async (req: Request, res: Response) => {
+    try {
+        const user = req.user;
+        console.log(user, "user")
+        if (!user) throw new Error("Unauthorized User")
+        const id = req.user?.id;
+        console.log(user)
+        const data = await postService.getMyPost(id);
+        res.status(200).json({ message: " Your Post Get Successfully", data })
+    } catch (error) {
+        console.log(error)
+        res.status(401).json({ error: error instanceof Error ? error.message : " Your Post not found" })
+    }
+}
 
 export const postController = {
     createPost,
-    gatePost,
+    getPost,
     deletedPost,
-    getPostById
+    getPostById,
+    getMyPost
 }
