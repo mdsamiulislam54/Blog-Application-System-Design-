@@ -8,6 +8,7 @@ router.get('/:commentId', commentController.getCommentById);
 router.get('/author/:authorId', commentController.getCommentByAuthorId);
 router.delete('/:id', roleVerify(userRole.ADMIN, userRole.USER), commentController.deleteCommentById);
 router.patch('/:id', roleVerify(userRole.ADMIN, userRole.USER), commentController.updateComment);
+router.patch('/moderate/:id', roleVerify(userRole.ADMIN), commentController.moderateComment);
 
 
 export const commentRouter: Router = router

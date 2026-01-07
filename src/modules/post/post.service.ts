@@ -104,12 +104,14 @@ const getAllPost = async (payload: {
                     author_id: true,
                     content: true,
                     parent_id: true,
+                    status:true,
                     replies: {
                         select: {
                             comment_id: true,
                             author_id: true,
                             content: true,
-                            parent_id: true
+                            parent_id: true,
+                            status:true
                         }
                     }
                 },

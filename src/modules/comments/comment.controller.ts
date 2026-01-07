@@ -8,7 +8,7 @@ const createComment = async (req: Request, res: Response) => {
         const data = await commentService.createComment(req.body);
         res.status(201).json({ message: "Comment create Successfully", data })
     } catch (error) {
-        res.status(404).json({ error: "Comment create failed" })
+        res.status(404).json({ error: error instanceof Error ? error.message : "Comment create failed" })
     }
 }
 const getCommentById = async (req: Request, res: Response) => {
@@ -18,7 +18,7 @@ const getCommentById = async (req: Request, res: Response) => {
         const data = await commentService.getCommentById(commentId);
         res.status(201).json({ message: "Comment Get Successfully", data })
     } catch (error) {
-        res.status(404).json({ error: "Coment Get failed" })
+        res.status(404).json({ error: error instanceof Error ? error.message : "Coment Get failed" })
     }
 }
 const getCommentByAuthorId = async (req: Request, res: Response) => {
@@ -28,7 +28,7 @@ const getCommentByAuthorId = async (req: Request, res: Response) => {
         const data = await commentService.getCommentByAuthorId(id);
         res.status(201).json({ message: "Comment Get Successfully", data })
     } catch (error) {
-        res.status(404).json({ error: "Coment Get failed" })
+        res.status(404).json({ error: error instanceof Error ? error.message : "Coment Get failed" })
     }
 }
 const deleteCommentById = async (req: Request, res: Response) => {
@@ -39,7 +39,7 @@ const deleteCommentById = async (req: Request, res: Response) => {
         const data = await commentService.deleteCommentById(id, user?.id);
         res.status(201).json({ message: "Comment Delete Successfully", data })
     } catch (error) {
-        res.status(404).json({ error: "Coment delete failed" })
+        res.status(404).json({ error: error instanceof Error ? error.message : "Coment delete failed" })
     }
 }
 const updateComment = async (req: Request, res: Response) => {
@@ -56,6 +56,18 @@ const updateComment = async (req: Request, res: Response) => {
         });
     }
 }
+const moderateComment = async (req: Request, res: Response) => {
+    try {
+        const id = req.params.id as string;
+        const data = await commentService.moderateComment(id, req.body);
+        res.status(201).json({ message: "Comment Update Successfully", data })
+    } catch (error) {
+        
+        res.status(400).json({
+            error: error instanceof Error ? error.message : "Comment update failed"
+        });
+    }
+}
 
 
 export const commentController = {
@@ -63,5 +75,6 @@ export const commentController = {
     getCommentById,
     getCommentByAuthorId,
     deleteCommentById,
-    updateComment
+    updateComment,
+    moderateComment
 }

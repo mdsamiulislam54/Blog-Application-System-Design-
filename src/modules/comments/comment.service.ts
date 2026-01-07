@@ -94,43 +94,65 @@ const deleteCommentById = async (id: string, authorId: string) => {
 }
 
 const updateComment = async (
-  id: string,
-  data: { content?: string; status?: CommentStatus },
-  authorId: string
+    id: string,
+    data: { content?: string; status?: CommentStatus },
+    authorId: string
 ) => {
 
-  const comment = await prisma.comment.findFirst({
-    where: {
-      comment_id: id,
-      author_id: authorId
-    },
-    select: {
-      comment_id: true
+    const comment = await prisma.comment.findFirst({
+        where: {
+            comment_id: id,
+            author_id: authorId
+        },
+        select: {
+            comment_id: true
+        }
+    });
+
+    if (!comment) {
+        throw new Error("Comment not found!");
     }
-  });
 
-  if (!comment) {
-    throw new Error("Comment not found!");
-  }
+    const updateData = {
+        ...(data.content !== undefined && { content: data.content }),
+        ...(data.status !== undefined && { status: data.status }),
+    };
 
-  const updateData = {
-    ...(data.content !== undefined && { content: data.content }),
-    ...(data.status !== undefined && { status: data.status }),
-  };
-
-  return await prisma.comment.updateMany({
-    where: {
-      comment_id: id,
-      author_id: authorId
-    },
-    data: updateData
-  });
+    return await prisma.comment.updateMany({
+        where: {
+            comment_id: id,
+            author_id: authorId
+        },
+        data: updateData
+    });
 };
+
+const moderateComment = async (id: string, data: { status: CommentStatus }) => {
+    console.log("moderate", id, data)
+    const comment = await prisma.comment.findUniqueOrThrow({
+        where: {
+            comment_id: id
+        }
+    });
+    
+    if(comment.status === data.status ){
+        throw new Error(`You provided status(${data.status}) is a already up to date`)
+    }
+    return await prisma.comment.update({
+        where: {
+            comment_id: id
+        },
+        data
+    })
+
+}
+
 
 export const commentService = {
     createComment,
     getCommentById,
     getCommentByAuthorId,
     deleteCommentById,
-    updateComment
+    updateComment,
+    moderateComment
 }
