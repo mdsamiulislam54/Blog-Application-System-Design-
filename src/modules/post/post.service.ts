@@ -185,7 +185,7 @@ const getPostById = async (id: string) => {
         }
     });
 
-    if(!postData) return null;
+    if (!postData) return null;
 
     await prisma.post.update({
         where: { post_id: id },
@@ -203,16 +203,40 @@ const getPostById = async (id: string) => {
 }
 
 const getMyPost = async (authorId: string) => {
-    console.log(authorId)
+
+    await prisma.user.findUniqueOrThrow({
+        where:{
+            id: authorId,
+            status:"ACTIVE"
+        }
+    })
     const result = await prisma.post.findMany({
         where: {
             author_id: authorId
         },
-        include:{comment:true},
-        orderBy: { createdAt: "desc" }
+        include: {
+            _count: {
+                select: {
+                    comment: true
+                }
+            },
+            comment: true
+        },
+        orderBy: { createdAt: "desc" },
+
+
+    });
+
+    const total = await prisma.post.aggregate({
+        _count: {
+            post_id: true
+        },
+        where:{
+            author_id:authorId
+        }
     })
 
-    return result
+    return { result, total }
 }
 
 
