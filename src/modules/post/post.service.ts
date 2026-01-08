@@ -239,16 +239,19 @@ const getMyPost = async (authorId: string) => {
     return { result, total }
 }
 
-const updateOwnPost = async (id: string, authorid: string, data: Partial<Post>) => {
-    console.log(id, authorid, data);
-
+const updateOwnPost = async (id: string, authorid: string, data: Partial<Post>, isAdmin: boolean) => {
+    console.log(authorid)
     const post = await prisma.post.findUniqueOrThrow({
         where: { post_id: id },
         select: { post_id: true, author_id: true }
     });
 
-    if (post.author_id !== authorid) {
+    if (!isAdmin && (post.author_id !== authorid)) {
         throw new Error("Your are not create/owner of this post. So Your not update of this post ")
+    }
+
+    if (!isAdmin) {
+        delete data.isFeatured;
     }
 
     return await prisma.post.updateMany({

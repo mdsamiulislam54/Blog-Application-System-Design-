@@ -2,6 +2,7 @@ import { Request, Response } from "express"
 import { postService } from "./post.service"
 import { PostStatus } from "../../../generated/prisma/client"
 import { paginationSortingHelper } from "../../helper/paginationAndSortinghelper";
+import { userRole } from "../../middleware/middleware";
 
 
 const createPost = async (req: Request, res: Response) => {
@@ -86,8 +87,10 @@ const updateOwnPost = async (req: Request, res: Response) => {
         const user = req.user;
         if (!user) throw new Error("Unauthorized User");
         const id = req.params.id as string;
-        const data = await postService.updateOwnPost(id, user.id, req.body);
-        res.status(200).json({ message: " Your Post Update Successfully", data });
+        const isAdmin = user.role === userRole.ADMIN;
+        console.log(isAdmin)
+        const data = await postService.updateOwnPost(id, user.id, req.body, isAdmin);
+        res.status(200).json({ message: " Your Post Update Successfully",  });
     } catch (error) {
         console.log(error)
         res.status(401).json({ error: error instanceof Error ? error.message : " Your Post update failed" })
