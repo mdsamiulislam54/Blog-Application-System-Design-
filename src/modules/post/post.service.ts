@@ -140,9 +140,23 @@ const getAllPost = async (payload: {
         }
     }
 }
-const deletedPost = async (id: string) => {
-    const result = await prisma.post.delete({
+const deletedPost = async (id: string, authorId: string, isAdmin: boolean) => {
+    // console.log("Author Id ***************", authorId)
+    const post = await prisma.post.findUniqueOrThrow({
+        where: {
+            post_id: id
+        },
+        select: {
+            author_id: true,
+            post_id: true
+        }
+    });
 
+    if (!isAdmin && post.author_id !== authorId) {
+        throw new Error("You are not deleted of this post because you are not owner of this post")
+    }
+
+    const result = await prisma.post.delete({
         where: {
             post_id: id
         }

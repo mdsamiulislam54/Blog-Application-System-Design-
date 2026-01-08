@@ -44,10 +44,13 @@ const getPost = async (req: Request, res: Response) => {
 }
 const deletedPost = async (req: Request, res: Response) => {
     try {
-
+        const user = req.user;
+        if(!user) throw new Error("You are unauthorized")
         const id = req.params.id as string;
-        console.log(id)
-        const data = await postService.deletedPost(id);
+        const authorId = user?.id as string;
+        const isAdmin = user.role === userRole.ADMIN;
+
+        const data = await postService.deletedPost(id, authorId, isAdmin);
         res.status(200).json({ message: " Deleted Post Successfully", data })
     } catch (error) {
         res.status(404).json({ error: error instanceof Error ? error.message : "Deleted Post  failed" })
@@ -88,9 +91,8 @@ const updateOwnPost = async (req: Request, res: Response) => {
         if (!user) throw new Error("Unauthorized User");
         const id = req.params.id as string;
         const isAdmin = user.role === userRole.ADMIN;
-        console.log(isAdmin)
         const data = await postService.updateOwnPost(id, user.id, req.body, isAdmin);
-        res.status(200).json({ message: " Your Post Update Successfully",  });
+        res.status(200).json({ message: " Your Post Update Successfully", });
     } catch (error) {
         console.log(error)
         res.status(401).json({ error: error instanceof Error ? error.message : " Your Post update failed" })

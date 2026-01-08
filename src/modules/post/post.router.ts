@@ -10,7 +10,7 @@ router.get('/my-posts', roleVerify(userRole.ADMIN, userRole.USER), postControlle
 router.get('/', postController.getPost);
 router.get('/:id', postController.getPostById);
 
-router.delete('/:id', postController.deletedPost);
+router.delete('/:id', roleVerify(userRole.ADMIN, userRole.USER), postController.deletedPost);
 
 router.patch('/update-own-post/:id', roleVerify(userRole.ADMIN, userRole.USER), postController.updateOwnPost);
 
