@@ -2,6 +2,7 @@
 import { CommentStatus, Post, PostStatus } from "../../../generated/prisma/client"
 import { prisma } from "../../../lib/prisma"
 import { PostWhereInput } from "../../../generated/prisma/models";
+import { userRole } from "../../middleware/middleware";
 
 const createPost = async (data: Omit<Post, "post_id" | "createdAt" | "updatedAt" | "author_id">, user_id: string) => {
 
@@ -279,6 +280,26 @@ const updateOwnPost = async (id: string, authorid: string, data: Partial<Post>, 
 
 }
 
+const statistics = async () => {
+    // totalPost, totalView, publishedPost, archivedPost, draftPost, totalComment, totalUser, totalAdmin
+
+        const [totalPost, totalView, publishedPost, archivedPost, draftPost, totalComment, totalUser, totalAdmin] = await Promise.all([
+            await prisma.post.count(),
+            await prisma.post.aggregate({ _sum: { view: true } }),
+            await prisma.post.count({ where: { status: PostStatus.PUBLISHED } }),
+            await prisma.post.count({ where: { status: PostStatus.ARCHIVED } }),
+            await prisma.post.count({ where: { status: PostStatus.DRAFT } }),
+            await prisma.comment.count(),
+            await prisma.user.count(),
+            await prisma.user.count({ where: { role: userRole.ADMIN } })
+
+        ])
+        return {
+            totalPost, totalView: totalView._sum.view , publishedPost, archivedPost, draftPost, totalComment, totalUser, totalAdmin
+        }
+   
+
+}
 
 export const postService = {
     createPost,
@@ -286,5 +307,6 @@ export const postService = {
     deletedPost,
     getPostById,
     getMyPost,
-    updateOwnPost
+    updateOwnPost,
+    statistics
 }

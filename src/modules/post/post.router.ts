@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.post('/create', roleVerify(userRole.ADMIN, userRole.USER), postController.createPost);
 router.get('/my-posts', roleVerify(userRole.ADMIN, userRole.USER), postController.getMyPost)
+router.get('/statis', postController.statistices);
 
 router.get('/', postController.getPost);
 router.get('/:id', postController.getPostById);

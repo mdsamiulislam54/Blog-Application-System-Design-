@@ -98,6 +98,16 @@ const updateOwnPost = async (req: Request, res: Response) => {
         res.status(401).json({ error: error instanceof Error ? error.message : " Your Post update failed" })
     }
 }
+const statistices = async (req: Request, res: Response) => {
+    try {
+       
+        const data = await postService.statistics();
+        res.status(200).json({ message: " Get Statistices  Successfully",data });
+    } catch (error) {
+        console.log(error)
+        res.status(401).json({ error: error instanceof Error ? error.message : " Statisce data failed" })
+    }
+}
 
 export const postController = {
     createPost,
@@ -105,5 +115,6 @@ export const postController = {
     deletedPost,
     getPostById,
     getMyPost,
-    updateOwnPost
+    updateOwnPost,
+    statistices
 }
