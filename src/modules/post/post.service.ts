@@ -255,7 +255,6 @@ const getMyPost = async (authorId: string) => {
 }
 
 const updateOwnPost = async (id: string, authorid: string, data: Partial<Post>, isAdmin: boolean) => {
-    console.log(authorid)
     const post = await prisma.post.findUniqueOrThrow({
         where: { post_id: id },
         select: { post_id: true, author_id: true }

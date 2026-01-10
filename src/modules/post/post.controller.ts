@@ -86,7 +86,7 @@ const getMyPost = async (req: Request, res: Response) => {
     }
 }
 
-const updateOwnPost = async (req: Request, res: Response) => {
+const updateOwnPost = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = req.user;
         if (!user) throw new Error("Unauthorized User");
@@ -95,8 +95,9 @@ const updateOwnPost = async (req: Request, res: Response) => {
         const data = await postService.updateOwnPost(id, user.id, req.body, isAdmin);
         res.status(200).json({ message: " Your Post Update Successfully", });
     } catch (error) {
-        console.log(error)
-        res.status(401).json({ error: error instanceof Error ? error.message : " Your Post update failed" })
+        next(error);
+        // console.log(error)
+        // res.status(401).json({ error: error instanceof Error ? error.message : " Your Post update failed" })
     }
 }
 const statistices = async (req: Request, res: Response) => {
