@@ -1,11 +1,11 @@
-import { Request, Response } from "express"
+import { NextFunction, Request, Response } from "express"
 import { postService } from "./post.service"
 import { PostStatus } from "../../../generated/prisma/client"
 import { paginationSortingHelper } from "../../helper/paginationAndSortinghelper";
 import { userRole } from "../../middleware/middleware";
 
 
-const createPost = async (req: Request, res: Response) => {
+const createPost = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = req.user;
         if (!user) {
@@ -14,7 +14,8 @@ const createPost = async (req: Request, res: Response) => {
         const data = await postService.createPost(req.body, user.id as string);
         res.status(201).json({ message: "Post create Successfully", data })
     } catch (error) {
-        res.status(404).json({ error: error instanceof Error ? error.message : "Post create failed" })
+        next(error)
+        // res.status(404).json({ error: "Post create failed" })
     }
 }
 const getPost = async (req: Request, res: Response) => {
@@ -45,7 +46,7 @@ const getPost = async (req: Request, res: Response) => {
 const deletedPost = async (req: Request, res: Response) => {
     try {
         const user = req.user;
-        if(!user) throw new Error("You are unauthorized")
+        if (!user) throw new Error("You are unauthorized")
         const id = req.params.id as string;
         const authorId = user?.id as string;
         const isAdmin = user.role === userRole.ADMIN;
@@ -100,9 +101,9 @@ const updateOwnPost = async (req: Request, res: Response) => {
 }
 const statistices = async (req: Request, res: Response) => {
     try {
-       
+
         const data = await postService.statistics();
-        res.status(200).json({ message: " Get Statistices  Successfully",data });
+        res.status(200).json({ message: " Get Statistices  Successfully", data });
     } catch (error) {
         console.log(error)
         res.status(401).json({ error: error instanceof Error ? error.message : " Statisce data failed" })
