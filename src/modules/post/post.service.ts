@@ -168,7 +168,7 @@ const deletedPost = async (id: string, authorId: string, isAdmin: boolean) => {
 
 const getPostById = async (id: string) => {
 
-    const postData = await prisma.post.findUnique({
+    const postData = await prisma.post.findUniqueOrThrow({
         where: { post_id: id },
         include: {
             comment: {
@@ -200,7 +200,6 @@ const getPostById = async (id: string) => {
         }
     });
 
-    if (!postData) return null;
 
     await prisma.post.update({
         where: { post_id: id },
@@ -252,7 +251,7 @@ const getMyPost = async (authorId: string) => {
     })
 
     return { result, total }
-}
+};
 
 const updateOwnPost = async (id: string, authorid: string, data: Partial<Post>, isAdmin: boolean) => {
     const post = await prisma.post.findUniqueOrThrow({

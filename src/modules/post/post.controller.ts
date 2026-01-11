@@ -15,10 +15,9 @@ const createPost = async (req: Request, res: Response, next: NextFunction) => {
         res.status(201).json({ message: "Post create Successfully", data })
     } catch (error) {
         next(error)
-        // res.status(404).json({ error: "Post create failed" })
     }
-}
-const getPost = async (req: Request, res: Response) => {
+};
+const getPost = async (req: Request, res: Response,  next: NextFunction) => {
     try {
         const { search, tags, statusParam, isFeatured, authorId, } = req.query;
         const searchtext = typeof search === 'string' ? search : undefined;
@@ -40,10 +39,10 @@ const getPost = async (req: Request, res: Response) => {
         const data = await postService.getAllPost({ searchtext, tagsArray, statusText, isFeature, author_Id, skip, limit, sortBy, sorOrderBy, page });
         res.status(201).json({ message: " Get Post Successfully", data })
     } catch (error) {
-        res.status(404).json({ error: error instanceof Error ? error.message : "Get Post  failed" })
+        next(error)
     }
-}
-const deletedPost = async (req: Request, res: Response) => {
+};
+const deletedPost = async (req: Request, res: Response,  next: NextFunction) => {
     try {
         const user = req.user;
         if (!user) throw new Error("You are unauthorized")
@@ -54,38 +53,35 @@ const deletedPost = async (req: Request, res: Response) => {
         const data = await postService.deletedPost(id, authorId, isAdmin);
         res.status(200).json({ message: " Deleted Post Successfully", data })
     } catch (error) {
-        res.status(404).json({ error: error instanceof Error ? error.message : "Deleted Post  failed" })
+        next(error)
     }
-}
-const getPostById = async (req: Request, res: Response) => {
+};
+
+const getMyPost = async (req: Request, res: Response, next:NextFunction) => {
+    try {
+        const user = req.user;
+        if (!user) throw new Error("Unauthorized User")
+        const authorId = req.user?.id;
+        const data = await postService.getMyPost(authorId);
+        res.status(200).json({ message: " Your Post Get Successfully", data })
+    } catch (error) {
+        next(error);
+    }
+};
+
+const getPostById = async (req: Request, res: Response, next: NextFunction) => {
     try {
 
         const id = req.params.id as string;
         if (!id) { throw new Error("Post_id is Required") }
 
         const data = await postService.getPostById(id);
-
-        if (!data) {
-            res.status(404).json({ success: false, message: "This PostId Post is not exists" })
-        }
         res.status(200).json({ message: " Post Get Successfully", data })
     } catch (error) {
-        res.status(404).json({ error: error instanceof Error ? error.message : "Post not found" })
+        next(error);
+        
     }
-}
-const getMyPost = async (req: Request, res: Response) => {
-    try {
-        const user = req.user;
-        if (!user) throw new Error("Unauthorized User")
-        const id = req.user?.id;
-        const data = await postService.getMyPost(id);
-        res.status(200).json({ message: " Your Post Get Successfully", data })
-    } catch (error) {
-        console.log(error)
-        res.status(401).json({ error: error instanceof Error ? error.message : " Your Post not found" })
-    }
-}
-
+};
 const updateOwnPost = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const user = req.user;
@@ -96,20 +92,18 @@ const updateOwnPost = async (req: Request, res: Response, next: NextFunction) =>
         res.status(200).json({ message: " Your Post Update Successfully", });
     } catch (error) {
         next(error);
-        // console.log(error)
-        // res.status(401).json({ error: error instanceof Error ? error.message : " Your Post update failed" })
+
     }
-}
-const statistices = async (req: Request, res: Response) => {
+};
+const statistices = async (req: Request, res: Response,  next: NextFunction) => {
     try {
 
         const data = await postService.statistics();
         res.status(200).json({ message: " Get Statistices  Successfully", data });
     } catch (error) {
-        console.log(error)
-        res.status(401).json({ error: error instanceof Error ? error.message : " Statisce data failed" })
+        next(error)
     }
-}
+};
 
 export const postController = {
     createPost,

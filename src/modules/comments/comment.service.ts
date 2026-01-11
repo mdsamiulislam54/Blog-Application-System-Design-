@@ -24,8 +24,7 @@ const createComment = async (payload: {
 }
 
 const getCommentById = async (id: string) => {
-    console.log("commId", id)
-    return await prisma.comment.findUnique({
+    return await prisma.comment.findUniqueOrThrow({
         where: {
             comment_id: id
         },

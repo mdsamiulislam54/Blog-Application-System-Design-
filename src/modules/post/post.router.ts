@@ -5,11 +5,11 @@ import { roleVerify, userRole } from "../../middleware/middleware";
 const router = express.Router();
 
 router.post('/create', roleVerify(userRole.ADMIN, userRole.USER), postController.createPost);
-router.get('/my-posts', roleVerify(userRole.ADMIN, userRole.USER), postController.getMyPost)
+router.get('/my-posts', roleVerify(userRole.ADMIN, userRole.USER), postController.getMyPost);
 router.get('/statis', postController.statistices);
 
 router.get('/', postController.getPost);
-router.get('/:id', postController.getPostById);
+router.get('/get-post/:id', postController.getPostById);
 
 router.delete('/:id', roleVerify(userRole.ADMIN, userRole.USER), postController.deletedPost);
 
